@@ -1,0 +1,26 @@
+[
+    {
+        "pmu": 2,
+        "ip": "10.0.0.2",
+        "pmu_importance": 4.333333333333334,
+        "path_num": 3
+    },
+    {
+        "pmu": 6,
+        "ip": "10.0.0.6",
+        "pmu_importance": 4.0,
+        "path_num": 2
+    },
+    {
+        "pmu": 7,
+        "ip": "10.0.0.7",
+        "pmu_importance": 2.333333333333333,
+        "path_num": 1
+    },
+    {
+        "pmu": 12,
+        "ip": "10.0.0.12",
+        "pmu_importance": 3.333333333333333,
+        "path_num": 2
+    }
+]

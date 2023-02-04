@@ -1,0 +1,20 @@
+version: "3.9"
+services:
+  pdc_host: 
+  #image: "claudious96/openpdc:latest"
+    build:
+      context: ./build
+      dockerfile: Dockerfile
+    image: "pdc_host"
+    #user: root
+    tty: true
+    ports:
+     #- 8280:8280
+      - 8500:8500
+    restart: always
+    volumes:
+            #- ./config/openPDC.exe.config:/opt/openPDC/openPDC.exe.config2
+            #- ./config/openPDCConsole.exe.config:/opt/openPDC/openPDCConsole.exe.config
+            #- ./config/openPDC.db:/opt/openPDC/openPDC.db
+            #- ./config/ConfigurationEditor.exe.config:/opt/openPDC/ConfigurationEditor.exe.config  
+      - ${PWD}/volume/openPDC.db:/opt/openPDC/ConfigurationCache/openPDC.db

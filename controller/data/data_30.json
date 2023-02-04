@@ -1,0 +1,62 @@
+[
+    {
+        "pmu": 2,
+        "ip": "10.0.0.2",
+        "pmu_importance": 2.25,
+        "path_num": 1
+    },
+    {
+        "pmu": 3,
+        "ip": "10.0.0.3",
+        "pmu_importance": 2.0,
+        "path_num": 1
+    },
+    {
+        "pmu": 6,
+        "ip": "10.0.0.6",
+        "pmu_importance": 4.416666666666667,
+        "path_num": 3
+    },
+    {
+        "pmu": 9,
+        "ip": "10.0.0.9",
+        "pmu_importance": 1.9166666666666665,
+        "path_num": 1
+    },
+    {
+        "pmu": 10,
+        "ip": "10.0.0.10",
+        "pmu_importance": 4.916666666666666,
+        "path_num": 3
+    },
+    {
+        "pmu": 12,
+        "ip": "10.0.0.12",
+        "pmu_importance": 4.0,
+        "path_num": 2
+    },
+    {
+        "pmu": 18,
+        "ip": "10.0.0.18",
+        "pmu_importance": 2.5,
+        "path_num": 1
+    },
+    {
+        "pmu": 23,
+        "ip": "10.0.0.23",
+        "pmu_importance": 2.0,
+        "path_num": 1
+    },
+    {
+        "pmu": 25,
+        "ip": "10.0.0.25",
+        "pmu_importance": 2.5,
+        "path_num": 1
+    },
+    {
+        "pmu": 27,
+        "ip": "10.0.0.27",
+        "pmu_importance": 3.5,
+        "path_num": 2
+    }
+]
