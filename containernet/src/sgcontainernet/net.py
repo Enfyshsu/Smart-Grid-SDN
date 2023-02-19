@@ -25,7 +25,8 @@ class SGContainernet(Containernet):
         return d
 
     def addOpenPDCHost(self, name, ip, mac):
-        d = self.addDocker(name=name, ip=ip, mac=mac, dimage='pdc_host', ports=[8500], network_mode='none', dns=['8.8.8.8'], volumes=['/home/sgsdn/workspace/containernet/service/pdc_host/volume/openPDC.db:/opt/openPDC/ConfigurationCache/openPDC.db'], dcmd='./init.sh')
+        d = self.addDocker(name=name, ip=ip, mac=mac, dimage='pdc_host', ports=[8500], network_mode='none', dns=['8.8.8.8'], dcmd='./init.sh')
+        #d = self.addDocker(name=name, ip=ip, mac=mac, dimage='pdc_host', ports=[8500], network_mode='none', dns=['8.8.8.8'], volumes=['/home/sgsdn/workspace/containernet/service/pdc_host/volume/openPDC.db:/opt/openPDC/ConfigurationCache/openPDC.db'], dcmd='./init.sh')
         #d.cmd('/bin/bash')
         #d.cmd('./init.sh')
         return d

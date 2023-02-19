@@ -10,7 +10,7 @@ from mininet.link import TCLink
 from mininet.log import info, setLogLevel
 setLogLevel('info')
 
-exec(open("/home/sgsdn/sflow-rt/extras/sflow.py").read())
+exec(open("/home/sgsdn/workspace/sflow-rt/extras/sflow.py").read())
 subnet = '10.0.0.0/8'
 net = SGContainernet(controller=RemoteController, ipBase=subnet)
 

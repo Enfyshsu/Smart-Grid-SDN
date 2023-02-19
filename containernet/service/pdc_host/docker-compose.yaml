@@ -12,9 +12,9 @@ services:
      #- 8280:8280
       - 8500:8500
     restart: always
-    volumes:
+    #volumes:
             #- ./config/openPDC.exe.config:/opt/openPDC/openPDC.exe.config2
             #- ./config/openPDCConsole.exe.config:/opt/openPDC/openPDCConsole.exe.config
             #- ./config/openPDC.db:/opt/openPDC/openPDC.db
             #- ./config/ConfigurationEditor.exe.config:/opt/openPDC/ConfigurationEditor.exe.config  
-      - ${PWD}/volume/openPDC.db:/opt/openPDC/ConfigurationCache/openPDC.db
+            #- ${PWD}/volume/openPDC.db:/opt/openPDC/ConfigurationCache/openPDC.db
