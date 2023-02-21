@@ -19,7 +19,7 @@ from ryu.controller.handler import CONFIG_DISPATCHER, MAIN_DISPATCHER
 from ryu.controller.handler import set_ev_cls
 from ryu.ofproto import ofproto_v1_5
 from ryu.lib.packet import packet
-from ryu.lib.packet import ethernet
+from ryu.lib.packet import ethernet, ipv4
 from ryu.lib.packet import ether_types
 
 
@@ -70,9 +70,20 @@ class SimpleSwitch15(app_manager.RyuApp):
         pkt = packet.Packet(msg.data)
         eth = pkt.get_protocols(ethernet.ethernet)[0]
 
+        src_ip = ''
+        dst_ip = ''
+
         if eth.ethertype == ether_types.ETH_TYPE_LLDP:
             # ignore lldp packet
             return
+        if eth.ethertype == ether_types.ETH_TYPE_IP:
+            ip = pkt.get_protocol(ipv4.ipv4)
+            #print(ip)
+            src_ip = ip.src
+            dst_ip = ip.dst
+            protocol = ip.proto
+            print('src_ip', src_ip)
+
         dst = eth.dst
         src = eth.src
 
@@ -98,8 +109,16 @@ class SimpleSwitch15(app_manager.RyuApp):
 
         # install a flow to avoid packet_in next time
         if out_port != ofproto.OFPP_FLOOD:
-            match = parser.OFPMatch(in_port=in_port, eth_dst=dst)
-            self.add_flow(datapath, 1, match, actions)
+            if src_ip == '':
+                match = parser.OFPMatch(in_port=in_port, eth_dst=dst)
+                priority = 1
+            else:
+                print('is src_ip', src_ip)
+                match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP, ipv4_src=src_ip, eth_dst=dst)
+                priority = 10
+            #else:
+                #match = parser.OFPMatch(in_port=in_port, eth_dst=dst)
+            self.add_flow(datapath, priority, match, actions)
 
         data = None
         if msg.buffer_id == ofproto.OFP_NO_BUFFER:

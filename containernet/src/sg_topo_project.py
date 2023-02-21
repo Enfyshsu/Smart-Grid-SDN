@@ -4,7 +4,7 @@ This is the most simple example to showcase Containernet.
 """
 from mininet.net import Mininet
 from sgcontainernet.net import SGContainernet
-from mininet.node import Controller, RemoteController
+from mininet.node import Controller, RemoteController, OVSHtbQosSwitch
 from mininet.cli import CLI
 from mininet.link import TCLink
 from mininet.log import info, setLogLevel
@@ -43,9 +43,9 @@ e7 = net.addSGHost('e7', ip='10.0.3.207', mac='00:00:00:00:00:07')
 SGHosts += [e1, e2, e4, e7]
 
 info('*** Adding switches\n')
-s1 = net.addSwitch('s1')
-s2 = net.addSwitch('s2')
-s3 = net.addSwitch('s3')
+s1 = net.addSwitch('s1', cls=OVSHtbQosSwitch)
+s2 = net.addSwitch('s2', cls=OVSHtbQosSwitch)
+s3 = net.addSwitch('s3', cls=OVSHtbQosSwitch)
 
 info('*** Creating links\n')
 net.addLink(s1, vpn)
@@ -68,14 +68,29 @@ net.addLink(s3, e7)
 #net.addLink(s3, d3)
 #net.addLink(s3, v3)
 
-net.addLink(s1, s2)
-net.addLink(s2, s3)
-#net.addLink(s1, s2, cls=TCLink, bw=1)
-#net.addLink(s2, s3, cls=TCLink, bw=1)
+#net.addLink(s1, s2)
+#net.addLink(s2, s3)
+net.addLink(s1, s2, cls=TCLink, bw=30)
+net.addLink(s2, s3, cls=TCLink, bw=30)
 # net.addLink(s3, s1, cls=TCLink, bw=1)
 
 info('*** Starting network\n')
 net.start()
+s1.cmd('ovs-vsctl set port s1-eth4 qos=@newqos -- \
+--id=@newqos create qos type=linux-htb queues=0=@q0,1=@q1,2=@q2 -- \
+--id=@q0 create queue other-config:priority=0 -- \
+--id=@q1 create queue other-config:priority=1 other-config:min-rate=2300000 other-config:max-rate=16000000 -- \
+--id=@q2 create queue other-config:priority=1')
+s2.cmd('ovs-vsctl set port s2-eth2 qos=@newqos -- \
+--id=@newqos create qos type=linux-htb queues=0=@q0,1=@q1,2=@q2 -- \
+--id=@q0 create queue other-config:priority=0 -- \
+--id=@q1 create queue other-config:priority=1 other-config:min-rate=2300000 other-config:max-rate=16000000 -- \
+--id=@q2 create queue other-config:priority=1')
+s2.cmd('ovs-vsctl set port s2-eth1 qos=@newqos -- \
+--id=@newqos create qos type=linux-htb queues=0=@q0,1=@q1,2=@q2 -- \
+--id=@q0 create queue other-config:priority=0 -- \
+--id=@q1 create queue other-config:priority=1 other-config:min-rate=2300000 other-config:max-rate=16000000 -- \
+--id=@q2 create queue other-config:priority=1')
 
 for host in SGHosts:
     net.enableNAT(host, '10.0.0.250')
