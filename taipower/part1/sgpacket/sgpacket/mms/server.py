@@ -4,7 +4,12 @@ import iec61850
 import time
 import threading
 import queue
+import enum
 
+class MMS_SERVER_CMD(enum.Enum):
+   set_attr = 0
+   stop = 1
+   
 class Server():
     def __init__(self, port = 102):
         self.port = port
@@ -24,19 +29,19 @@ class Server():
             
         while True:
             if not self.command_q.empty():
-                command = self.command_q.get()
-                if command == 87:
+                cmd = self.command_q.get()
+                if cmd == MMS_SERVER_CMD.set_attr:
                     val = self.command_q.get()
                     iec61850.IedServer_lockDataModel(self.iedServer);
                     iec61850.IedServer_updateFloatAttributeValue(self.iedServer, self.da, val);
                     iec61850.IedServer_unlockDataModel(self.iedServer);
-                elif command == 88:
+                elif cmd == MMS_SERVER_CMD.stop:
                     iec61850.IedServer_stop(self.iedServer)
                     iec61850.IedServer_destroy(self.iedServer)
                     break
 
     def set_attr_val(self, val):
-        self.command_q.put(87)
+        self.command_q.put(MMS_SERVER_CMD.set_attr)
         self.command_q.put(val)
 
     def run(self):
@@ -44,7 +49,7 @@ class Server():
         th.start()
         
     def stop(self):
-        self.command_q.put(88)
+        self.command_q.put(MMS_SERVER_CMD.stop)
         
       
     

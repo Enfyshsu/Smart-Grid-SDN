@@ -1,13 +1,14 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 import sgpacket
-
+import time
 
 # test transmitter
-my_transmitter = sgpacket.Transmitter(sgpacket.PacketType.MMS)
+t = sgpacket.Transmitter(sgpacket.PacketType.TCP, server_ip = '127.0.0.1', server_port = 7000)
 
-# test enumerator
-print(sgpacket.PacketType.TCP)
-sgpacket.dnp3.a()
+t.run()
+time.sleep(3)
+t.send_one()
+time.sleep(3)
+t.stop()

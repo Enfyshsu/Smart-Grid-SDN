@@ -8,6 +8,11 @@ sys.path.insert(0, "/libiec61850/pyiec61850")
 import iec61850
 from datetime import datetime
 import queue
+import enum
+
+class MMS_CLIENT_CMD(enum.Enum):
+   send_req = 0
+   stop = 1
 
 class Client():
     def __init__(self, server_ip = "127.0.0.1", port = 102):
@@ -21,13 +26,13 @@ class Client():
         if error == iec61850.IED_ERROR_OK:
             while True:
                 if not self.command_q.empty():
-                    command = self.command_q.get()
-                    if command == 87:
+                    cmd = self.command_q.get()
+                    if cmd == MMS_CLIENT_CMD.send_req:
                         the_val = "testmodelLD1/LN1.DO1.data1"
                         the_val_type = iec61850.IEC61850_FC_MX
                         value = iec61850.IedConnection_readFloatValue(con, the_val, the_val_type)
-                        print("received data:", value)
-                    elif command == 88:
+                        print("Received data:", value)
+                    elif cmd == MMS_CLIENT_CMD.stop:
                         break
         else:
             print("Connection error")
@@ -40,8 +45,8 @@ class Client():
         th.start()
     
     def request_data(self):
-        self.command_q.put(87)
+        self.command_q.put(MMS_CLIENT_CMD.send_req)
         
     def stop(self):
-        self.command_q.put(88)
+        self.command_q.put(MMS_CLIENT_CMD.stop)
         

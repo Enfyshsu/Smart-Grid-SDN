@@ -4,7 +4,12 @@ import iec61850
 import time
 import queue
 import threading
+import enum
 
+class GOOSE_CMD(enum.Enum):
+   send = 0
+   stop = 1
+   
 class Publisher():
     def __init__(self, interface = 'eth0'):
         self.dataSetValues = iec61850.LinkedList_create()
@@ -33,11 +38,11 @@ class Publisher():
             while True:
                 if not self.command_q.empty():
                     cmd = self.command_q.get()
-                    if cmd == 87:
+                    if cmd == GOOSE_CMD.send:
                         res = iec61850.GoosePublisher_publish(publisher, self.dataSetValues)
                         if res == -1:
                             print("Error sending message")
-                    elif cmd == 88:
+                    elif cmd == GOOSE_CMD.stop:
                         break
                         
             iec61850.GoosePublisher_destroy(publisher)
@@ -50,8 +55,8 @@ class Publisher():
         th.start()
     
     def publish_data(self):
-        self.command_q.put(87)
+        self.command_q.put(GOOSE_CMD.send)
         
     def stop(self):
-        self.command_q.put(88)
+        self.command_q.put(GOOSE_CMD.stop)
 

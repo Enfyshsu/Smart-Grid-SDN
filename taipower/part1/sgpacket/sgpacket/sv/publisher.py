@@ -1,9 +1,15 @@
 from . import _lib61850
+from sgpacket.abstract import *
 import time
 import threading
 import queue
+import enum
 
-class Publisher():
+class SV_CMD(enum.Enum):
+   send = 0
+   stop = 1
+   
+class Publisher(ITransmitterL2):
     def __init__(self, interface = 'eth0'):
         self.interface = interface
         self.command_q = queue.Queue()
@@ -23,23 +29,22 @@ class Publisher():
             while True:
                 if not self.command_q.empty():
                     cmd = self.command_q.get()
-                    if cmd == 87:
-                        for i in range(3):
-                            ts = _lib61850.Timestamp()
-                            _lib61850.Timestamp_clearFlags(ts)
-                            _lib61850.Timestamp_setTimeInMilliseconds(ts, int(time.time()))
-                            
-                            _lib61850.SVPublisher_ASDU_setFLOAT(asdu1, float1, fVal1)
-                            _lib61850.SVPublisher_ASDU_setFLOAT(asdu1, float2, fVal2)
-                            _lib61850.SVPublisher_ASDU_setTimestamp(asdu1, ts1, ts)
-                    
-                            _lib61850.SVPublisher_ASDU_increaseSmpCnt(asdu1);
-                            fVal1 += 1.1
-                            fVal2 += 0.1
-                    
-                            _lib61850.SVPublisher_publish(svPublisher)
-                            time.sleep(0.5)
-                    elif cmd == 88:
+                    if cmd == SV_CMD.send:
+                        #for i in range(3):
+                        ts = _lib61850.Timestamp()
+                        _lib61850.Timestamp_clearFlags(ts)
+                        _lib61850.Timestamp_setTimeInMilliseconds(ts, int(time.time()))
+                        
+                        _lib61850.SVPublisher_ASDU_setFLOAT(asdu1, float1, fVal1)
+                        _lib61850.SVPublisher_ASDU_setFLOAT(asdu1, float2, fVal2)
+                        _lib61850.SVPublisher_ASDU_setTimestamp(asdu1, ts1, ts)
+                
+                        _lib61850.SVPublisher_ASDU_increaseSmpCnt(asdu1);
+                        fVal1 += 1.1
+                        fVal2 += 0.1
+                        _lib61850.SVPublisher_publish(svPublisher)
+                        #time.sleep(0.5)
+                    elif cmd == SV_CMD.stop:
                         break
             _lib61850.SVPublisher_destroy(svPublisher)
         else:
@@ -49,10 +54,10 @@ class Publisher():
         th.start()
     
     def publish_data(self):
-        self.command_q.put(87)
+        self.command_q.put(SV_CMD.send)
         
     def stop(self):
-        self.command_q.put(88)
+        self.command_q.put(SV_CMD.stop)
     
 
 
