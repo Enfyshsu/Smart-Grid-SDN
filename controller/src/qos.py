@@ -76,13 +76,6 @@ class SimpleSwitch15(app_manager.RyuApp):
         if eth.ethertype == ether_types.ETH_TYPE_LLDP:
             # ignore lldp packet
             return
-        if eth.ethertype == ether_types.ETH_TYPE_IP:
-            ip = pkt.get_protocol(ipv4.ipv4)
-            #print(ip)
-            src_ip = ip.src
-            dst_ip = ip.dst
-            protocol = ip.proto
-            print('src_ip', src_ip)
 
         dst = eth.dst
         src = eth.src
@@ -100,24 +93,27 @@ class SimpleSwitch15(app_manager.RyuApp):
         else:
             out_port = ofproto.OFPP_FLOOD
         
-        if src == '00:00:00:00:00:01':
+        if eth.ethertype == ether_types.ETH_TYPE_IP:
+            ip = pkt.get_protocol(ipv4.ipv4)
+            src_ip = ip.src
+            dst_ip = ip.dst
+            protocol = ip.proto
+        
+        if src_ip == '10.0.1.201':
             actions = [parser.OFPActionSetQueue(0), parser.OFPActionOutput(out_port)]
-        elif src == '00:00:00:00:00:02':
+        elif src_ip == '10.0.1.202':
             actions = [parser.OFPActionSetQueue(1), parser.OFPActionOutput(out_port)]
         else:
-            actions = [parser.OFPActionOutput(out_port)]
+            actions = [parser.OFPActionSetQueue(2), parser.OFPActionOutput(out_port)]
 
         # install a flow to avoid packet_in next time
         if out_port != ofproto.OFPP_FLOOD:
-            if src_ip == '':
-                match = parser.OFPMatch(in_port=in_port, eth_dst=dst)
-                priority = 1
-            else:
-                print('is src_ip', src_ip)
+            if src_ip != '':
                 match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP, ipv4_src=src_ip, eth_dst=dst)
                 priority = 10
-            #else:
-                #match = parser.OFPMatch(in_port=in_port, eth_dst=dst)
+            else:
+                match = parser.OFPMatch(in_port=in_port, eth_dst=dst)
+                priority = 1
             self.add_flow(datapath, priority, match, actions)
 
         data = None
