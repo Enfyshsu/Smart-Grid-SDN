@@ -4,9 +4,9 @@ import xmpp
 import queue
 import threading
 import select
+from sgpacket.abstract import ITransmitterL3
 
-
-class Client():
+class Client(ITransmitterL3):
     def __init__(self, server_ip = '127.0.0.1', port = 5222):
         self.server_ip = server_ip
         self.port = port
@@ -73,4 +73,13 @@ class Client():
         #print("add msg to queue")
         self.command_q.put(to)
         self.command_q.put(msg)
+        
+    def set_server_ip(self, ip):
+        self.server_ip = ip
+        
+    def set_server_port(self, port):
+        self.port = port
+    
+    def send_one(self):
+        self.send_msg('Edward', 'hmmmmmm')
         

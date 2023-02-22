@@ -1,6 +1,6 @@
 from .abstract import *
 from .packet import PacketType
-from . import tcp, udp
+from . import tcp, udp, dnp3, mms, xmpp
 
 class Receiver(IReceiver):
     def __init__(self, packet_type, ip, port):
@@ -11,6 +11,12 @@ class Receiver(IReceiver):
             self.handler = tcp.Server()
         elif self.packet_type == PacketType.UDP:
             self.handler = udp.Server()
+        elif self.packet_type == PacketType.DNP3:
+            self.handler = dnp3.Server()
+        elif self.packet_type == PacketType.MMS:
+            self.handler = mms.Server()
+        elif self.packet_type == PacketType.XMPP:
+            self.handler = xmpp.Server()
         else:
             raise NotImplementedError
             

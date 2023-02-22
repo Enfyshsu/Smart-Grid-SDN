@@ -2,8 +2,10 @@ from . import _lib61850
 from sgpacket.abstract import *
 import time
 import threading
+import codecs
 import queue
 import enum
+from sgpacket.abstract import ITransmitterL2
 
 class SV_CMD(enum.Enum):
    send = 0
@@ -14,8 +16,20 @@ class Publisher(ITransmitterL2):
         self.interface = interface
         self.command_q = queue.Queue()
         
+        self.CommParameters = _lib61850.CommParameters()
+        self.CommParameters.appId = 1000
+        # Set dst mac here OwO
+        self.CommParameters.dstAddress[0] = 0x01
+        self.CommParameters.dstAddress[1] = 0x02
+        self.CommParameters.dstAddress[2] = 0x03
+        self.CommParameters.dstAddress[3] = 0x04
+        self.CommParameters.dstAddress[4] = 0x05
+        self.CommParameters.dstAddress[5] = 0x06
+        self.CommParameters.vlanId = 0
+        self.CommParameters.vlanPriority = 5
+        
     def _start(self):
-        svPublisher = _lib61850.SVPublisher_create(None, self.interface)
+        svPublisher = _lib61850.SVPublisher_create(self.CommParameters, self.interface)
         if svPublisher:
             asdu1 = _lib61850.SVPublisher_addASDU(svPublisher, "svpub1", None, 1)
             float1 = _lib61850.SVPublisher_ASDU_addFLOAT(asdu1)
@@ -59,6 +73,22 @@ class Publisher(ITransmitterL2):
     def stop(self):
         self.command_q.put(SV_CMD.stop)
     
+    def set_ifce(self, interface):
+        self.interface = interface
+    
+    def set_dst_mac(self, dst_mac):
+        assert len(dst_mac) == 12
+        dst_mac = codecs.decode(dst_mac, 'hex')
+        assert len(dst_mac) == 6
+        self.CommParameters.dstAddress[0] = dst_mac[0]
+        self.CommParameters.dstAddress[1] = dst_mac[1]
+        self.CommParameters.dstAddress[2] = dst_mac[2]
+        self.CommParameters.dstAddress[3] = dst_mac[3]
+        self.CommParameters.dstAddress[4] = dst_mac[4]
+        self.CommParameters.dstAddress[5] = dst_mac[5]
+    
+    def send_one(self):
+        self.publish_data()
 
 
 

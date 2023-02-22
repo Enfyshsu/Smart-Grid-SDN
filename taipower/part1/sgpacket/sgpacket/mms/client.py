@@ -9,12 +9,13 @@ import iec61850
 from datetime import datetime
 import queue
 import enum
+from sgpacket.abstract import ITransmitterL3
 
 class MMS_CLIENT_CMD(enum.Enum):
    send_req = 0
    stop = 1
 
-class Client():
+class Client(ITransmitterL3):
     def __init__(self, server_ip = "127.0.0.1", port = 102):
         self.server_ip = server_ip
         self.port = port
@@ -49,4 +50,13 @@ class Client():
         
     def stop(self):
         self.command_q.put(MMS_CLIENT_CMD.stop)
+    
+    def set_server_ip(self, ip):
+        self.server_ip = ip
+    
+    def set_server_port(self, port):
+        self.port = port
+        
+    def send_one(self):
+        self.request_data()
         

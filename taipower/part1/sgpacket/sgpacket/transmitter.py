@@ -11,13 +11,13 @@ class Transmitter(ITransmitter):
             self.handler = tcp.Client()
         elif self.packet_type == PacketType.UDP:
             self.handler = udp.Client()
-        elif self.pakcet_type == PacketType.DNP3:
+        elif self.packet_type == PacketType.DNP3:
             self.handler = dnp3.Client()
-        elif self.pakcet_type == PacketType.MMS:
+        elif self.packet_type == PacketType.MMS:
             self.handler = mms.Client()
-        elif self.pakcet_type == PacketType.XMPP:
+        elif self.packet_type == PacketType.XMPP:
             self.handler = xmpp.Client()
-        elif self.pakcet_type == PacketType.GOOSE:
+        elif self.packet_type == PacketType.GOOSE:
             self.handler = goose.Publisher()
         elif self.packet_type == PacketType.SV:
             self.handler = sv.Publisher()

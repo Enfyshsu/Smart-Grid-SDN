@@ -5,12 +5,14 @@ import time
 import queue
 import threading
 import enum
+import codecs
+from sgpacket.abstract import ITransmitterL2
 
 class GOOSE_CMD(enum.Enum):
    send = 0
    stop = 1
    
-class Publisher():
+class Publisher(ITransmitterL2):
     def __init__(self, interface = 'eth0'):
         self.dataSetValues = iec61850.LinkedList_create()
         iec61850.LinkedList_add(self.dataSetValues, iec61850.MmsValue_newIntegerFromInt32(1234))
@@ -22,7 +24,7 @@ class Publisher():
         # Set dst mac here OwO
         iec61850.CommParameters_setDstAddress(self.gooseCommParameters, 0x01, 0x0c, 0xcd, 0x01, 0x00, 0x01)
         self.gooseCommParameters.vlanId = 0
-        self.gooseCommParameters.vlanPriority = 4
+        self.gooseCommParameters.vlanPriority = 5
         
         self.interface = interface
         self.command_q = queue.Queue()
@@ -60,3 +62,14 @@ class Publisher():
     def stop(self):
         self.command_q.put(GOOSE_CMD.stop)
 
+    def set_ifce(self, interface):
+        self.interface = interface
+    
+    def set_dst_mac(self, dst_mac):
+        assert len(dst_mac) == 12
+        dst_mac = codecs.decode(dst_mac, 'hex')
+        assert len(dst_mac) == 6
+        iec61850.CommParameters_setDstAddress(self.gooseCommParameters, dst_mac[0], dst_mac[1], dst_mac[2], dst_mac[3], dst_mac[4], dst_mac[5])
+        
+    def send_one(self):
+        self.publish_data()

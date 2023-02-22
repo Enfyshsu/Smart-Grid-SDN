@@ -1,8 +1,9 @@
 import socket
 import threading
 import xmpp
+from sgpacket.abstract import IReceiver
 
-class Server():
+class Server(IReceiver):
     def __init__(self, host = '0.0.0.0', port = 5222):
         self.ID = 4235063100
         self.BUFFER_SIZE = 1024
@@ -121,3 +122,9 @@ class Server():
             self.conn.close()
         except:
             pass
+            
+    def set_ip(self, ip):
+        self.host = ip
+        
+    def set_port(self, port):
+        self.port = port

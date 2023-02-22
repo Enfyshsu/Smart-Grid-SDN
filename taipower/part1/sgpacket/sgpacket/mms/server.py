@@ -5,12 +5,13 @@ import time
 import threading
 import queue
 import enum
+from sgpacket.abstract import IReceiver
 
 class MMS_SERVER_CMD(enum.Enum):
    set_attr = 0
    stop = 1
    
-class Server():
+class Server(IReceiver):
     def __init__(self, port = 102):
         self.port = port
         self.iedModel = iec61850.IedModel_create("testmodel")
@@ -51,6 +52,11 @@ class Server():
     def stop(self):
         self.command_q.put(MMS_SERVER_CMD.stop)
         
-      
-    
+    def set_ip(self, ip):
+        print("WARNING: method set_ip() has not implemented, use 0.0.0.0 instead.")
+        pass
+        
+    def set_port(self, port):
+        self.port = port
+        
     
