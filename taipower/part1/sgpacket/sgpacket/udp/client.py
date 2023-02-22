@@ -2,12 +2,13 @@ import socket
 import threading
 import queue
 import enum
+from sgpacket.abstract import ITransmitterL3
 
 class UDP_CMD(enum.Enum):
    send = 0
    stop = 1
    
-class Client():
+class Client(ITransmitterL3):
     def __init__(self, server_ip = '127.0.0.1', port = 7000):
         self.server_ip = server_ip
         self.port = port
@@ -39,4 +40,13 @@ class Client():
     def send_msg(self, msg):
         self.command_q.put(UDP_CMD.send)
         self.command_q.put(msg)
+        
+    def set_server_ip(self, ip):
+        self.server_ip = ip
+    
+    def set_server_port(self, port):
+        self.port = port
+    
+    def send_one(self):
+        self.send_msg("ok you are UDP master")
 

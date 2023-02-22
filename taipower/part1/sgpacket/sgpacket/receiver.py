@@ -1,6 +1,6 @@
 from .abstract import *
 from .packet import PacketType
-from . import tcp
+from . import tcp, udp
 
 class Receiver(IReceiver):
     def __init__(self, packet_type, ip, port):
@@ -9,7 +9,11 @@ class Receiver(IReceiver):
     
         if self.packet_type == PacketType.TCP:
             self.handler = tcp.Server()
-        
+        elif self.packet_type == PacketType.UDP:
+            self.handler = udp.Server()
+        else:
+            raise NotImplementedError
+            
         self.set_ip(ip)
         self.set_port(port)
         

@@ -5,6 +5,7 @@ from datetime import datetime
 from pydnp3 import opendnp3, openpal
 from ._master import Master, MyLogger, AppChannelListener, SOEHandler, MasterApplication
 from ._master import command_callback, restart_callback
+from sgpacket.abstract import ITransmitterL3
 
 class DNP3_CMD(enum.Enum):
    send_o1 = 0
@@ -12,7 +13,7 @@ class DNP3_CMD(enum.Enum):
    send_o3 = 2
    stop = 3
    
-class Client():
+class Client(ITransmitterL3):
     def __init__(self, local_ip = "0.0.0.0", port = 20000, server_ip = "127.0.0.1"):
         self.log_levels = opendnp3.levels.NORMAL | opendnp3.levels.ALL_COMMS
         self.local_ip = local_ip
@@ -56,3 +57,12 @@ class Client():
         
     def stop(self):
         self.command_q.put(DNP3_CMD.stop)
+        
+    def set_server_ip(self, ip):
+        self.server_ip = ip
+    
+    def set_server_port(self, port):
+        self.port = port
+    
+    def send_one(self):
+        self.send_o1()

@@ -1,6 +1,6 @@
 from .abstract import *
 from .packet import PacketType
-from . import tcp
+from . import tcp, udp, dnp3, mms, xmpp, goose, sv
 
 class Transmitter(ITransmitter):
     def __init__(self, packet_type, server_ip = None, server_port = None, dst_mac = None, ifce = None):
@@ -9,6 +9,18 @@ class Transmitter(ITransmitter):
         
         if self.packet_type == PacketType.TCP:
             self.handler = tcp.Client()
+        elif self.packet_type == PacketType.UDP:
+            self.handler = udp.Client()
+        elif self.pakcet_type == PacketType.DNP3:
+            self.handler = dnp3.Client()
+        elif self.pakcet_type == PacketType.MMS:
+            self.handler = mms.Client()
+        elif self.pakcet_type == PacketType.XMPP:
+            self.handler = xmpp.Client()
+        elif self.pakcet_type == PacketType.GOOSE:
+            self.handler = goose.Publisher()
+        elif self.packet_type == PacketType.SV:
+            self.handler = sv.Publisher()
         else:
             raise NotImplementedError
         

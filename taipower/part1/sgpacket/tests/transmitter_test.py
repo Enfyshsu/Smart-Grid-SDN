@@ -5,7 +5,7 @@ import sgpacket
 import time
 
 # test transmitter
-t = sgpacket.Transmitter(sgpacket.PacketType.TCP, server_ip = '127.0.0.1', server_port = 7000)
+t = sgpacket.Transmitter(sgpacket.PacketType.UDP, server_ip = '127.0.0.1', server_port = 7000)
 
 t.run()
 time.sleep(3)

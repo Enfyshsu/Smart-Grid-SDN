@@ -5,6 +5,6 @@ class PacketType(Enum):
     UDP = 1
     DNP3 = 2
     MMS = 3
-    XML = 4
+    XMPP = 4
     GOOSE = 5
     SV = 6

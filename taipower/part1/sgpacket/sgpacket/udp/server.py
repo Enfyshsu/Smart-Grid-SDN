@@ -1,7 +1,8 @@
 import socket
 import threading 
+from sgpacket.abstract import IReceiver
 
-class Server():
+class Server(IReceiver):
     def __init__(self, host = '0.0.0.0', port = 7000):
         self.host = host
         self.port = port
@@ -26,4 +27,10 @@ class Server():
     def stop(self):
         self.s.close()
         #self.conn.close()
+    
+    def set_ip(self, ip):
+        self.host = ip
+    
+    def set_port(self, port):
+        self.port = port
         
