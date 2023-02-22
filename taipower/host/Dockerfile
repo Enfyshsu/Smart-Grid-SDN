@@ -2,7 +2,8 @@ FROM lscr.io/linuxserver/wireshark:latest
 MAINTAINER enfyshsu
 
 RUN ["/bin/bash", "-c", "echo 'nameserver 8.8.8.8' > /etc/resolv.conf"]
-RUN ["/bin/bash", "-c", "echo 'export LD_LIBRARY_PATH=/usr/local/lib64:$LD_LIBRARY_PATH > /root/.bashrc'"]
+RUN ["/bin/bash", "-c", "touch /root/.bashrc"]
+RUN ["/bin/bash", "-c", "echo 'export LD_LIBRARY_PATH=/usr/local/lib64' > /root/.bashrc"]
 RUN apk update
 RUN apk add --no-cache python3 python3-dev vim openssh git iperf3 build-base wget linux-headers g++ gcc cmake make
 ADD ./config/sshd_config /etc/ssh/sshd_config
