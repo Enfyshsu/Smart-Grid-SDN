@@ -48,6 +48,7 @@ class Server(IReceiver):
     def run(self):
         th = threading.Thread(target=self._start)
         th.start()
+        self.set_attr_val(87)
         
     def stop(self):
         self.command_q.put(MMS_SERVER_CMD.stop)

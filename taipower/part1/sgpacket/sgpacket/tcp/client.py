@@ -13,7 +13,7 @@ class Client(ITransmitterL3):
         self.server_ip = server_ip
         self.port = port
         self.command_q = queue.Queue()
-        
+        self.th = None
             
     def _start(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -32,8 +32,8 @@ class Client(ITransmitterL3):
             
 
     def run(self):
-        th = threading.Thread(target = self._start)
-        th.start()
+        self.th = threading.Thread(target = self._start)
+        self.th.start()
         
     def stop(self):
         self.command_q.put(TCP_CMD.stop)
@@ -50,3 +50,6 @@ class Client(ITransmitterL3):
         
     def send_one(self):
         self.send_msg("Taipower Taipower No.1!!")
+    
+    def join(self):
+        self.th.join()

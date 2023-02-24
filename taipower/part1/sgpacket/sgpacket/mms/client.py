@@ -20,7 +20,7 @@ class Client(ITransmitterL3):
         self.server_ip = server_ip
         self.port = port
         self.command_q = queue.Queue()
-        
+        self.th = None
     def _start(self):
         con = iec61850.IedConnection_create()
         error = iec61850.IedConnection_connect(con, self.server_ip, self.port)
@@ -42,8 +42,8 @@ class Client(ITransmitterL3):
         iec61850.IedConnection_destroy(con)
     
     def run(self):
-        th = threading.Thread(target=self._start)
-        th.start()
+        self.th = threading.Thread(target=self._start)
+        self.th.start()
     
     def request_data(self):
         self.command_q.put(MMS_CLIENT_CMD.send_req)
@@ -59,4 +59,7 @@ class Client(ITransmitterL3):
         
     def send_one(self):
         self.request_data()
+        
+    def join(self):
+        self.th.join()
         

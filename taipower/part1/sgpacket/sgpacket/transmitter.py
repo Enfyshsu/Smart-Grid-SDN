@@ -42,3 +42,6 @@ class Transmitter(ITransmitter):
         
     def send_one(self):
         self.handler.send_one()
+        
+    def join(self):
+        self.handler.join()

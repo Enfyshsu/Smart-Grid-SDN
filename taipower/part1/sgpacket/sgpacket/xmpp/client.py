@@ -15,7 +15,7 @@ class Client(ITransmitterL3):
         self.username = "sgsdn"
         self.pwd = "test"
         self.command_q = queue.Queue()
-        
+        self.th = None
     def _messageCB(self, sess, mess):
         message = xmpp.protocol.Message(node=mess)
         msgFrom = message.getFrom()
@@ -61,13 +61,18 @@ class Client(ITransmitterL3):
                 msg = xmpp.Message(userTo, message)
                 connection.send(msg)
         connection.disconnect()
+        print("Disconnected.")
+        return
         
     def run(self):
-        th = threading.Thread(target = self._start)
-        th.start()
+        self.th = threading.Thread(target = self._start)
+        self.th.start()
         
     def stop(self):
         self.command_q.put(":close")
+    
+    def join(self):
+        self.th.join()
         
     def send_msg(self, to, msg):
         #print("add msg to queue")

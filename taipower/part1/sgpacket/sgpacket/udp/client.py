@@ -13,7 +13,7 @@ class Client(ITransmitterL3):
         self.server_ip = server_ip
         self.port = port
         self.command_q = queue.Queue()
-        
+        self.th = None
             
     def _start(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -31,8 +31,8 @@ class Client(ITransmitterL3):
                     break
             
     def run(self):
-        th = threading.Thread(target = self._start)
-        th.start()
+        self.th = threading.Thread(target = self._start)
+        self.th.start()
         
     def stop(self):
         self.command_q.put(UDP_CMD.stop)
@@ -46,7 +46,10 @@ class Client(ITransmitterL3):
     
     def set_server_port(self, port):
         self.port = port
-    
+        
+    def join(self):
+        self.th.join()
+        
     def send_one(self):
         self.send_msg("ok you are UDP master")
 

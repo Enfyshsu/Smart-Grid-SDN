@@ -29,6 +29,10 @@ class ITransmitter(ABC):
     @abstractmethod
     def send_one(self):
         return NotImplemented
+        
+    @abstractmethod
+    def join(self):
+        return NotImplemented
 
 class ITransmitterL2(ITransmitter):
     @abstractmethod

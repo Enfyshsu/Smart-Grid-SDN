@@ -20,7 +20,7 @@ class Client(ITransmitterL3):
         self.port = port
         self.server_ip = server_ip
         self.command_q = queue.Queue()
-        
+        self.th = None
         
     def _start(self):
         app = Master(log_handler=MyLogger(), listener=AppChannelListener(), soe_handler=SOEHandler(), master_application=MasterApplication(), log_levels = self.log_levels, local_ip = self.local_ip, port = self.port, host_ip = self.server_ip)
@@ -43,8 +43,8 @@ class Client(ITransmitterL3):
                 break
             
     def run(self):
-        th = threading.Thread(target=self._start)
-        th.start()
+        self.th = threading.Thread(target=self._start)
+        self.th.start()
         
     def send_o1(self):
         self.command_q.put(DNP3_CMD.send_o1)
@@ -57,7 +57,9 @@ class Client(ITransmitterL3):
         
     def stop(self):
         self.command_q.put(DNP3_CMD.stop)
-        
+    
+    def join(self):
+        self.th.join()
     def set_server_ip(self, ip):
         self.server_ip = ip
     

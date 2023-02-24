@@ -28,6 +28,7 @@ class Publisher(ITransmitterL2):
         
         self.interface = interface
         self.command_q = queue.Queue()
+        self.th = None
         
     def _start(self):
         publisher = iec61850.GoosePublisher_create(self.gooseCommParameters, self.interface)
@@ -53,8 +54,8 @@ class Publisher(ITransmitterL2):
             iec61850.LinkedList_destroyDeep(self.dataSetValues, iec61850.MmsValue_delete)
     
     def run(self):
-        th = threading.Thread(target=self._start)
-        th.start()
+        self.th = threading.Thread(target=self._start)
+        self.th.start()
     
     def publish_data(self):
         self.command_q.put(GOOSE_CMD.send)
@@ -73,3 +74,6 @@ class Publisher(ITransmitterL2):
         
     def send_one(self):
         self.publish_data()
+    
+    def join(self):
+        self.th.join()

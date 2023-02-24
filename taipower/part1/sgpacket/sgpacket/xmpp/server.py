@@ -12,7 +12,7 @@ class Server(IReceiver):
         self.onlineList = []
         self.msgList = {}
         self.conn = None
-        
+        self.s = None
     def _handler(self, client_conn, client_addr):
         # Ref: https://github.com/alissonmbr/xmpp
         print("Connected with ", client_addr) # Debug print
@@ -101,15 +101,16 @@ class Server(IReceiver):
                 string1 = str(self.msgList[iqUser].pop())
                 print(string1)
                 client_conn.send(string1.encode('utf-8'))
-        
+        self.s.close()
         print("Connetion with ", client_addr, " is closed")
         
     def _start(self):
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.bind((self.host, self.port))
-        s.listen(5)
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.s.bind((self.host, self.port))
+        self.s.listen(5)
         print('Waiting for connection')
-        self.conn, addr = s.accept()
+        self.conn, addr = self.s.accept()
         #conn.settimeout(30.0)
         self._handler(self.conn, addr)
         
@@ -118,10 +119,10 @@ class Server(IReceiver):
         self.th.start()
         
     def stop(self):
-        try:
-            self.conn.close()
-        except:
-            pass
+        #self.s.shutdown()
+        self.s.close()
+        #self.conn.close()
+  
             
     def set_ip(self, ip):
         self.host = ip

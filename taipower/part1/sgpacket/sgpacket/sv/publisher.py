@@ -27,7 +27,7 @@ class Publisher(ITransmitterL2):
         self.CommParameters.dstAddress[5] = 0x06
         self.CommParameters.vlanId = 0
         self.CommParameters.vlanPriority = 5
-        
+        self.th = None
     def _start(self):
         svPublisher = _lib61850.SVPublisher_create(self.CommParameters, self.interface)
         if svPublisher:
@@ -64,8 +64,8 @@ class Publisher(ITransmitterL2):
         else:
             print("Failed to create SV publisher.")
     def run(self):
-        th = threading.Thread(target=self._start)
-        th.start()
+        self.th = threading.Thread(target=self._start)
+        self.th.start()
     
     def publish_data(self):
         self.command_q.put(SV_CMD.send)
@@ -90,5 +90,6 @@ class Publisher(ITransmitterL2):
     def send_one(self):
         self.publish_data()
 
-
+    def join(self):
+        self.th.join()
 
