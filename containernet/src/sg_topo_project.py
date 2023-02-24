@@ -47,23 +47,23 @@ if __name__ == '__main__':
     vpn = net.addSGVPN('vpn', ip='10.0.0.250', mac='00:00:00:00:99:99', subnet=subnet)
 
     SGHosts = []
-    e1 = net.addSGHost('e1', ip='10.0.1.201', mac='00:00:00:00:00:01')
-    e2 = net.addSGHost('e2', ip='10.0.1.202', mac='00:00:00:00:00:02')
-    #e3 = net.addSGHost('e3', ip='10.0.1.203', mac='00:00:00:00:00:03')
-    #d1 = net.addSGHost('d1', ip='10.0.1.211', mac='00:00:00:00:00:11')
-    #v1 = net.addSGHost('v1', ip='10.0.1.221', mac='00:00:00:00:00:21')
+    e1 = net.addTPHost('e1', ip='10.0.1.201', mac='00:00:00:00:00:01')
+    e2 = net.addTPHost('e2', ip='10.0.1.202', mac='00:00:00:00:00:02')
+    #e3 = net.addTPHost('e3', ip='10.0.1.203', mac='00:00:00:00:00:03')
+    #d1 = net.addTPHost('d1', ip='10.0.1.211', mac='00:00:00:00:00:11')
+    #v1 = net.addTPHost('v1', ip='10.0.1.221', mac='00:00:00:00:00:21')
 
-    e4 = net.addSGHost('e4', ip='10.0.2.204', mac='00:00:00:00:00:04')
-    #e5 = net.addSGHost('e5', ip='10.0.2.205', mac='00:00:00:00:00:05')
-    #e6 = net.addSGHost('e6', ip='10.0.2.206', mac='00:00:00:00:00:06')
-    #d2 = net.addSGHost('d2', ip='10.0.2.212', mac='00:00:00:00:00:12')
-    #v2 = net.addSGHost('v2', ip='10.0.2.222', mac='00:00:00:00:00:22')
+    e4 = net.addTPHost('e4', ip='10.0.2.204', mac='00:00:00:00:00:04')
+    #e5 = net.addTPHost('e5', ip='10.0.2.205', mac='00:00:00:00:00:05')
+    #e6 = net.addTPHost('e6', ip='10.0.2.206', mac='00:00:00:00:00:06')
+    #d2 = net.addTPHost('d2', ip='10.0.2.212', mac='00:00:00:00:00:12')
+    #v2 = net.addTPHost('v2', ip='10.0.2.222', mac='00:00:00:00:00:22')
 
-    e7 = net.addSGHost('e7', ip='10.0.3.207', mac='00:00:00:00:00:07')
-    #e8 = net.addSGHost('e8', ip='10.0.3.208', mac='00:00:00:00:00:08')
-    #e9 = net.addSGHost('e9', ip='10.0.3.209', mac='00:00:00:00:00:09')
-    #d3 = net.addSGHost('d3', ip='10.0.3.213', mac='00:00:00:00:00:13')
-    #v3 = net.addSGHost('v3', ip='10.0.3.223', mac='00:00:00:00:00:23')
+    e7 = net.addTPHost('e7', ip='10.0.3.207', mac='00:00:00:00:00:07')
+    #e8 = net.addTPHost('e8', ip='10.0.3.208', mac='00:00:00:00:00:08')
+    #e9 = net.addTPHost('e9', ip='10.0.3.209', mac='00:00:00:00:00:09')
+    #d3 = net.addTPHost('d3', ip='10.0.3.213', mac='00:00:00:00:00:13')
+    #v3 = net.addTPHost('v3', ip='10.0.3.223', mac='00:00:00:00:00:23')
 
     #SGHosts += [e1, e2, e3, d1, v1, e4, e5, e6, d2, v2, e7, e8, e9, d3, v3]
     SGHosts += [e1, e2, e4, e7]

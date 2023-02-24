@@ -5,7 +5,7 @@ class SGContainernet(Containernet):
         d = self.addDocker(name=name, ip=ip, mac=mac, dimage='sgsdn_host', ports=[22, 3000], cap_add=["NET_ADMIN"], dcmd='/init', network_mode='none', dns=['8.8.8.8'])
         d.cmd('./ssh_entrypoint.sh')
         return d
-    
+
     def enableNAT(self, SGHost, gateway):
         SGHost.cmd('ip route add default via', gateway)
 
@@ -29,4 +29,9 @@ class SGContainernet(Containernet):
         #d = self.addDocker(name=name, ip=ip, mac=mac, dimage='pdc_host', ports=[8500], network_mode='none', dns=['8.8.8.8'], volumes=['/home/sgsdn/workspace/containernet/service/pdc_host/volume/openPDC.db:/opt/openPDC/ConfigurationCache/openPDC.db'], dcmd='./init.sh')
         #d.cmd('/bin/bash')
         #d.cmd('./init.sh')
+        return d
+
+    def addTPHost(self, name, ip, mac):
+        d = self.addDocker(name=name, ip=ip, mac=mac, dimage='sgsdn_taipower', ports=[22, 3000], dcmd='/init',  network_mode='none', dns=['8.8.8.8'], volumes=['/home/sgsdn/workspace/taipower/part1/sgpacket:/sgpacket'])
+        d.cmd('./ssh_entrypoint.sh')
         return d
