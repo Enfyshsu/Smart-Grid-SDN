@@ -17,6 +17,8 @@ _log.setLevel(logging.DEBUG)
 
 _log.disabled = True
 
+# transmit_time = None
+
 class Master:
     """
         Interface for all master application callback info except for measurement values.
@@ -129,13 +131,17 @@ class Master:
         self.master.SelectAndOperate(command_set, callback, config)
 
     def shutdown(self):
-        del self.slow_scan
-        del self.fast_scan
-        del self.master
-        del self.channel
+        # del self.slow_scan
+        # del self.fast_scan
+        # del self.master
+        # del self.channel
         self.manager.Shutdown()
+        # del self.manager
 
-
+    # def set_time(self, time):
+    #     global transmit_time
+    #     transmit_time = time
+        
 class MyLogger(openpal.ILogHandler):
     """
         Override ILogHandler in this manner to implement application-specific logging behavior.

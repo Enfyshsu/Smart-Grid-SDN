@@ -107,48 +107,68 @@ class SimpleSwitch13(app_manager.RyuApp):
 
         priority = 1
         match = parser.OFPMatch(in_port=in_port, eth_dst=dst)
-        actions = [parser.OFPActionSetQueue(2), parser.OFPActionOutput(out_port)]
+        actions = [parser.OFPActionSetQueue(4), parser.OFPActionOutput(out_port)]
 
         if eth.ethertype == ether_types.ETH_TYPE_IP:
+            # insert flow rule for xmpp, dnp3, and udp
             ip = pkt.get_protocol(ipv4.ipv4)
             src_ip = ip.src
             dst_ip = ip.dst
 
             t = pkt.get_protocol(tcp.tcp)
             u = pkt.get_protocol(udp.udp)
-        
+            
+            # the priority is higher than forwarding the pkt to controller (priority = 2)
+            """
+            # insert flow rule for tcp
+            if t is not None:
+                protocol = in_proto.IPPROTO_TCP
+                match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP, ip_proto=protocol, ipv4_src=src_ip, ipv4_dst=dst_ip)
+                actions = [parser.OFPActionSetQueue(0), parser.OFPActionOutput(out_port)]
+           
+           # insert flow rule for udp
+            elif u is not None:
+                protocol = in_proto.IPPROTO_UDP
+                match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP, ip_proto=protocol, ipv4_src=src_ip, ipv4_dst=dst_ip)
+                actions = [parser.OFPActionSetQueue(1), parser.OFPActionOutput(out_port)]
+
+            self.add_flow(datapath, priority, match, actions)
+            """
+            # insert flow rule for xmpp (tcp port 5222)
             if t is not None and t.dst_port == PORT_XMPP:
                 protocol = in_proto.IPPROTO_TCP
                 dst_port = PORT_XMPP
                 priority = 10
                 match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP, ip_proto=protocol, ipv4_src=src_ip, ipv4_dst=dst_ip, tcp_dst=dst_port)
-                actions = [parser.OFPActionSetQueue(2), parser.OFPActionOutput(out_port)]
+                actions = [parser.OFPActionSetQueue(1), parser.OFPActionOutput(out_port)]
             
+            # insert flow rule for dnp3 (tcp or udp port 20000)
             elif t is not None and t.dst_port == PORT_DNP3:
                 protocol = in_proto.IPPROTO_TCP
                 dst_port = PORT_DNP3
                 priority = 10
                 match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP, ip_proto=protocol, ipv4_src=src_ip, ipv4_dst=dst_ip, tcp_dst=dst_port)
-                actions = [parser.OFPActionSetQueue(0), parser.OFPActionOutput(out_port)]
+                actions = [parser.OFPActionSetQueue(2), parser.OFPActionOutput(out_port)]
             
             elif u is not None and u.dst_port == PORT_DNP3:
                 protocol = in_proto.IPPROTO_UDP
-                dst_port = PORT_UDP
+                dst_port = PORT_DNP3
                 priority = 10
                 match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP, ip_proto=protocol, ipv4_src=src_ip, ipv4_dst=dst_ip, udp_dst=dst_port)
-                actions = [parser.OFPActionSetQueue(0), parser.OFPActionOutput(out_port)]
+                actions = [parser.OFPActionSetQueue(2), parser.OFPActionOutput(out_port)]
             
+            # insert flow rule for video stream (udp port 7001 for example)
             elif u is not None and u.dst_port == PORT_UDP:
                 protocol = in_proto.IPPROTO_UDP
                 dst_port = PORT_UDP
                 priority = 10
                 match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP, ip_proto=protocol, ipv4_src=src_ip, ipv4_dst=dst_ip, udp_dst=dst_port)
-                actions = [parser.OFPActionSetQueue(1), parser.OFPActionOutput(out_port)]
+                actions = [parser.OFPActionSetQueue(3), parser.OFPActionOutput(out_port)]
             
-            self.add_flow(datapath, priority, match, actions)
+            # self.add_flow(datapath, priority, match, actions)
 
         # install a flow to avoid packet_in next time
-        elif out_port != ofproto.OFPP_FLOOD:
+        if out_port != ofproto.OFPP_FLOOD:
             self.add_flow(datapath, priority, match, actions)
 
         data = None
@@ -161,34 +181,52 @@ class SimpleSwitch13(app_manager.RyuApp):
 
     @set_ev_cls(event.EventSwitchEnter)
     def switch_enter_handler(self, ev):
+        # When a switch enters the controller,
+        # add rules to forward the xmpp, dnp3, and udp
+        # packets to the controller to find out_ports.
+
         datapath = ev.switch.dp
         ofproto = datapath.ofproto
         parser = datapath.ofproto_parser
         priority = 2
 
+        """
+        # insert flow rule for tcp
+        protocol = in_proto.IPPROTO_TCP
+        match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP, ip_proto=protocol)
+        actions = [parser.OFPActionSetQueue(0), parser.OFPActionOutput(ofproto.OFPP_CONTROLLER)]
+        self.add_flow(datapath, priority, match, actions)
+
+        # insert flow rule for udp
+        protocol = in_proto.IPPROTO_UDP
+        match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP, ip_proto=protocol)
+        actions = [parser.OFPActionSetQueue(1), parser.OFPActionOutput(ofproto.OFPP_CONTROLLER)]
+        self.add_flow(datapath, priority, match, actions)
+        """
+        
         # insert flow rule for xmpp (tcp port 5222)
         protocol = in_proto.IPPROTO_TCP
         dst_port = PORT_XMPP
         match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP, ip_proto=protocol, tcp_dst=dst_port)
-        actions = [parser.OFPActionSetQueue(2), parser.OFPActionOutput(ofproto.OFPP_CONTROLLER)]
+        actions = [parser.OFPActionSetQueue(1), parser.OFPActionOutput(ofproto.OFPP_CONTROLLER)]
         self.add_flow(datapath, priority, match, actions)
 
         # insert flow rule for dnp3 (tcp or udp port 20000)
         protocol = in_proto.IPPROTO_TCP
         dst_port = PORT_DNP3
         match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP, ip_proto=protocol, tcp_dst=dst_port)
-        actions = [parser.OFPActionSetQueue(0), parser.OFPActionOutput(ofproto.OFPP_CONTROLLER)]
+        actions = [parser.OFPActionSetQueue(2), parser.OFPActionOutput(ofproto.OFPP_CONTROLLER)]
         self.add_flow(datapath, priority, match, actions)
 
         protocol = in_proto.IPPROTO_UDP
         dst_port = PORT_DNP3
         match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP, ip_proto=protocol, udp_dst=dst_port)
-        actions = [parser.OFPActionSetQueue(0), parser.OFPActionOutput(ofproto.OFPP_CONTROLLER)]
+        actions = [parser.OFPActionSetQueue(2), parser.OFPActionOutput(ofproto.OFPP_CONTROLLER)]
         self.add_flow(datapath, priority, match, actions)
 
         # insert flow rule for video stream (udp port 7001 for example)
         protocol = in_proto.IPPROTO_UDP
         dst_port = PORT_UDP
         match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP, ip_proto=protocol, udp_dst=dst_port)
-        actions = [parser.OFPActionSetQueue(1), parser.OFPActionOutput(ofproto.OFPP_CONTROLLER)]
+        actions = [parser.OFPActionSetQueue(3), parser.OFPActionOutput(ofproto.OFPP_CONTROLLER)]
         self.add_flow(datapath, priority, match, actions)

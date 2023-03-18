@@ -2,6 +2,7 @@ import socket
 import threading
 import queue
 import enum
+import time
 from sgpacket.abstract import ITransmitterL3
 
 class UDP_CMD(enum.Enum):
@@ -26,6 +27,7 @@ class Client(ITransmitterL3):
                     s.sendto(msg.encode(), (self.server_ip, self.port))
                     print('Send to ' + str(self.server_ip) + ': ' + msg)
                 elif cmd == UDP_CMD.stop:
+                    s.sendto(':close'.encode(), (self.server_ip, self.port))
                     s.close()
                     print("Connection closed.")
                     break

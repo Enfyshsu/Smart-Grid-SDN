@@ -1,5 +1,7 @@
 import socket
-import threading 
+import threading
+import time
+import statistics
 from sgpacket.abstract import IReceiver
 
 class Server(IReceiver):
@@ -8,6 +10,8 @@ class Server(IReceiver):
         self.port = port
         self.conn = None
         self.s = None
+        self.packet_num = None
+        self.time_log = []
         
     def _start(self):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -24,13 +28,14 @@ class Server(IReceiver):
             indata = self.conn.recv(1024)
             if len(indata) == 0: # connection closed
                 self.conn.close()
-                print('client closed connection.')
                 break
+            if indata.find('<time>'.encode('utf-8')) >= 0:
+                self.time_log.append(time.time() - float(indata.split()[1]))
             print('recv: ' + indata.decode())
+        print('Client closed connection.')
+        if len(self.time_log) == self.packet_num:
+            self.delay_analysis(self.time_log)
 
-            #outdata = 'echo ' + indata.decode()
-            #self.conn.send(outdata.encode())
-        
     def set_ip(self, ip):
         self.host = ip
         
@@ -43,5 +48,9 @@ class Server(IReceiver):
         
     def stop(self):
         self.s.close()
-        #self.conn.close()
         
+    def delay_analysis(self, data):
+        mean = statistics.mean(data)
+        stdev = statistics.stdev(data)
+        print("Mean: %.6f" %mean) 
+        print("Standard Deviation: %.6f" % stdev)

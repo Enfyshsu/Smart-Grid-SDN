@@ -1,10 +1,11 @@
 import enum
 import queue
 import threading
+import time
 from datetime import datetime
 from pydnp3 import opendnp3, openpal
 from ._master import Master, MyLogger, AppChannelListener, SOEHandler, MasterApplication
-from ._master import command_callback, restart_callback
+from ._master import command_callback, restart_callback, collection_callback
 from sgpacket.abstract import ITransmitterL3
 
 class DNP3_CMD(enum.Enum):
@@ -21,12 +22,15 @@ class Client(ITransmitterL3):
         self.server_ip = server_ip
         self.command_q = queue.Queue()
         self.th = None
+        # self.transmit_time = None
         
     def _start(self):
         app = Master(log_handler=MyLogger(), listener=AppChannelListener(), soe_handler=SOEHandler(), master_application=MasterApplication(), log_levels = self.log_levels, local_ip = self.local_ip, port = self.port, host_ip = self.server_ip)
         while True:
             cmd = self.command_q.get()
             if cmd == DNP3_CMD.send_o1:
+                # app.set_time(time.time())
+                # app.send_direct_operate_command(opendnp3.ControlRelayOutputBlock(opendnp3.ControlCode.LATCH_ON), 5, self.calculate_time)
                 app.send_direct_operate_command(opendnp3.ControlRelayOutputBlock(opendnp3.ControlCode.LATCH_ON), 5, command_callback)
             elif cmd == DNP3_CMD.send_o2:
                 app.send_direct_operate_command(opendnp3.AnalogOutputInt32(7), 10, command_callback)
@@ -60,6 +64,7 @@ class Client(ITransmitterL3):
     
     def join(self):
         self.th.join()
+    
     def set_server_ip(self, ip):
         self.server_ip = ip
     
@@ -68,3 +73,21 @@ class Client(ITransmitterL3):
     
     def send_one(self):
         self.send_o1()
+
+    # def collection_callback(self, result=None):
+    #     """
+    #     :type result: opendnp3.CommandPointResult
+    #     """
+    #     print("Header: {0} | Index:  {1} | State:  {2} | Status: {3}".format(
+    #         result.headerIndex,
+    #         result.index,
+    #         opendnp3.CommandPointStateToString(result.state),
+    #         opendnp3.CommandStatusToString(result.status)
+    #     ))
+
+    # def calculate_time(self, result=None):
+    #     current_time = time.time()
+    #     print(current_time - self.transmit_time)
+    #     print("Received command result with summary: {}".format(opendnp3.TaskCompletionToString(result.summary)))
+    #     print(dir(result))
+    #     result.ForeachItem(self.collection_callback)

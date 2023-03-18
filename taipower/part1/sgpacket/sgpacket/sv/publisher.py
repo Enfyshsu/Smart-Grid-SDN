@@ -44,7 +44,6 @@ class Publisher(ITransmitterL2):
                 if not self.command_q.empty():
                     cmd = self.command_q.get()
                     if cmd == SV_CMD.send:
-                        #for i in range(3):
                         ts = _lib61850.Timestamp()
                         _lib61850.Timestamp_clearFlags(ts)
                         _lib61850.Timestamp_setTimeInMilliseconds(ts, int(time.time()))

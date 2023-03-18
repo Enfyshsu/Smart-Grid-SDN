@@ -1,6 +1,8 @@
 import socket
 import threading
 import xmpp
+import time
+import statistics
 from sgpacket.abstract import IReceiver
 
 class Server(IReceiver):
@@ -13,15 +15,18 @@ class Server(IReceiver):
         self.msgList = {}
         self.conn = None
         self.s = None
+        self.packet_num = None
+        self.time_log = []
+    
     def _handler(self, client_conn, client_addr):
         # Ref: https://github.com/alissonmbr/xmpp
-        print("Connected with ", client_addr) # Debug print
+        print("Connected with ", client_addr)
 
         # Client request: create stream
         
         data = client_conn.recv(self.BUFFER_SIZE)
         
-        print("Message from client: ", data)  # Debug print
+        print("Message from client: ", data)
         
         # Server response: stream ID and available features
         resStream = "<?xml version=\'1.0\'?>" 
@@ -55,8 +60,8 @@ class Server(IReceiver):
         userDigest = userDigest.replace(iqUser,"")
         userDigest = userDigest.replace("botty","")
         self.onlineList.append(iqUser)
-        print("User:", iqUser)		# Debug print
-        print("Digest:", userDigest) # Debug print
+        print("User:", iqUser)
+        print("Digest:", userDigest)
         
         # Server response: Authentication status
         authResponse = "<iq type=\'result\' id=\'" + str(iqId) + "'/>"
@@ -68,11 +73,11 @@ class Server(IReceiver):
         for x in self.onlineList:
             queryItens += "<item name=\"" + x + "\"/>"
         onlineStatus = xmpp.protocol.Iq(node="<iq> <query xmlns=\"http://jabber.org/protocol/disco#items\" node=\"online users\" >" + queryItens + "</query> </iq>")
-        #client_conn.send(onlineStatus.encode('utf-8'))
+        # client_conn.send(onlineStatus.encode('utf-8'))
         
         while True:
             data = client_conn.recv(self.BUFFER_SIZE)
-            print(data)
+            # print(data)
             # Disconnect
             if data == b"</stream:stream>":
                 self.onlineList.remove(iqUser)
@@ -84,12 +89,14 @@ class Server(IReceiver):
             for x in self.onlineList:
                 queryItens += "<item name=\"" + x + "\"/>"
             onlineStatus = xmpp.protocol.Iq(node="<iq> <query xmlns=\"http://jabber.org/protocol/disco#items\" node=\"online users\" >" + queryItens + "</query> </iq>")
-            #client_conn.send(str(onlineStatus))
             
             # Receive a message from the client
             if data.find("<message".encode('utf-8')) >= 0 :
-                msgP = xmpp.protocol.Message(node=data)			
+                msgP = xmpp.protocol.Message(node=data)
                 msgTo = msgP.getTo()
+                msgText = msgP.getBody()
+                if msgText.find('<time>') >= 0:
+                    self.time_log.append(time.time() - float(msgText.split()[1]))
                 if str(msgTo) in self.onlineList:
                     if len(self.msgList[str(msgTo)]) > 0: 
                         self.msgList[msgTo].insert(0,msgP)
@@ -99,10 +106,9 @@ class Server(IReceiver):
             # Send all message to the client
             while len(self.msgList[iqUser]) > 0:
                 string1 = str(self.msgList[iqUser].pop())
-                print(string1)
                 client_conn.send(string1.encode('utf-8'))
         self.s.close()
-        print("Connetion with ", client_addr, " is closed")
+        print("Connetion with ", client_addr, " is closed.")
         
     def _start(self):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -111,7 +117,6 @@ class Server(IReceiver):
         self.s.listen(5)
         print('Waiting for connection')
         self.conn, addr = self.s.accept()
-        #conn.settimeout(30.0)
         self._handler(self.conn, addr)
         
     def run(self):
@@ -119,13 +124,18 @@ class Server(IReceiver):
         self.th.start()
         
     def stop(self):
-        #self.s.shutdown()
         self.s.close()
-        #self.conn.close()
-  
+        if len(self.time_log) == self.packet_num:
+            self.delay_analysis(self.time_log)
             
     def set_ip(self, ip):
         self.host = ip
         
     def set_port(self, port):
         self.port = port
+
+    def delay_analysis(self, data):
+        mean = statistics.mean(data)
+        stdev = statistics.stdev(data)
+        print("Mean: %.6f" %mean) 
+        print("Standard Deviation: %.6f" % stdev)

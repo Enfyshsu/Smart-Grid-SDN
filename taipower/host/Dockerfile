@@ -16,10 +16,11 @@ WORKDIR /
 RUN git clone --recursive http://github.com/Kisensum/pydnp3
 WORKDIR /pydnp3
 RUN python3 setup.py install
-
+WORKDIR /
+RUN rm -r pydnp3/
 
 #build libiec61850
-WORKDIR /
+# WORKDIR /
 RUN git clone https://github.com/mz-automation/libiec61850.git
 WORKDIR /libiec61850
 RUN cmake -DBUILD_PYTHON_BINDINGS=ON .

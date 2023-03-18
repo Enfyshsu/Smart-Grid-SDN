@@ -28,11 +28,17 @@ def addLinkOnSwitch(node1, node2, ifaces, port1=None, port2=None,
 
 def setQos(ifaces):
     for iface in ifaces:
+        # sh('ovs-vsctl set port %s qos=@newqos -- \
+        # --id=@newqos create qos type=linux-htb queues=0=@q0,1=@q1 -- \
+        # --id=@q0 create queue other-config:priority=0 -- \
+        # --id=@q1 create queue other-config:priority=1 other-config:min-rate=2300000 other-config:max-rate=16000000' % iface)
+        
         sh('ovs-vsctl set port %s qos=@newqos -- \
-        --id=@newqos create qos type=linux-htb queues=0=@q0,1=@q1,2=@q2 -- \
-        --id=@q0 create queue other-config:priority=0 -- \
-        --id=@q1 create queue other-config:priority=2 other-config:min-rate=2300000 other-config:max-rate=16000000 -- \
-        --id=@q2 create queue other-config:priority=1' % iface)
+        --id=@newqos create qos type=linux-htb queues=1=@q1,2=@q2,3=@q3,4=@q4 -- \
+        --id=@q1 create queue other-config:priority=2 other-config:min-rate=10000 other-config:max-rate=100000 -- \
+        --id=@q2 create queue other-config:priority=0 other-config:min-rate=9600 other-config:max-rate=100000 -- \
+        --id=@q3 create queue other-config:priority=2 other-config:min-rate=3000000 other-config:max-rate=5000000 -- \
+        --id=@q4 create queue other-config:priority=1' % iface)
 
 
 if __name__ == '__main__':
@@ -48,7 +54,7 @@ if __name__ == '__main__':
 
     SGHosts = []
     e1 = net.addTPHost('e1', ip='10.0.1.201', mac='00:00:00:00:00:01')
-    e2 = net.addTPHost('e2', ip='10.0.1.202', mac='00:00:00:00:00:02')
+    #e2 = net.addTPHost('e2', ip='10.0.1.202', mac='00:00:00:00:00:02')
     #e3 = net.addTPHost('e3', ip='10.0.1.203', mac='00:00:00:00:00:03')
     #d1 = net.addTPHost('d1', ip='10.0.1.211', mac='00:00:00:00:00:11')
     #v1 = net.addTPHost('v1', ip='10.0.1.221', mac='00:00:00:00:00:21')
@@ -66,18 +72,21 @@ if __name__ == '__main__':
     #v3 = net.addTPHost('v3', ip='10.0.3.223', mac='00:00:00:00:00:23')
 
     #SGHosts += [e1, e2, e3, d1, v1, e4, e5, e6, d2, v2, e7, e8, e9, d3, v3]
-    SGHosts += [e1, e2, e4, e7]
+    SGHosts += [e1, e4, e7]
 
     info('*** Adding switches\n')
     s1 = net.addSwitch('s1', cls=OVSHtbQosSwitch)
     s2 = net.addSwitch('s2', cls=OVSHtbQosSwitch)
     s3 = net.addSwitch('s3', cls=OVSHtbQosSwitch)
+    #s1 = net.addSwitch('s1')
+    #s2 = net.addSwitch('s2')
+    #s3 = net.addSwitch('s3')
 
     info('*** Creating links\n')
     net.addLink(s1, vpn)
 
     net.addLink(s1, e1)
-    net.addLink(s1, e2)
+    #net.addLink(s1, e2)
     #net.addLink(s1, e3)
     #net.addLink(s1, d1)
     #net.addLink(s1, v1)
@@ -95,8 +104,11 @@ if __name__ == '__main__':
     #net.addLink(s3, v3)
 
     ifaces = []
-    ifaces = addLinkOnSwitch(s1, s2, ifaces=ifaces, cls=TCLink, bw=30)
-    ifaces = addLinkOnSwitch(s2, s3, ifaces=ifaces, cls=TCLink, bw=30)
+    #ifaces = addLinkOnSwitch(s1, s2, ifaces=ifaces)
+    #ifaces = addLinkOnSwitch(s2, s3, ifaces=ifaces)
+    
+    ifaces = addLinkOnSwitch(s1, s2, ifaces=ifaces, cls=TCLink, bw=10)
+    ifaces = addLinkOnSwitch(s2, s3, ifaces=ifaces, cls=TCLink, bw=10)
     
     info('*** Starting network\n')
     net.start()
@@ -105,6 +117,7 @@ if __name__ == '__main__':
         net.enableNAT(host, '10.0.0.250')
 
     info('*** Setting QoS strategy on each switch interface\n')
+    print(ifaces)
     setQos(ifaces)
 
     # info('*** Testing connectivity\n')

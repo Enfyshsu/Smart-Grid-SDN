@@ -2,6 +2,7 @@ import socket
 import threading
 import queue
 import enum
+import time
 from sgpacket.abstract import ITransmitterL3
 
 class TCP_CMD(enum.Enum):
@@ -17,6 +18,8 @@ class Client(ITransmitterL3):
             
     def _start(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        s.bind(('0.0.0.0', 20000)) # for dnp3
         s.connect((self.server_ip, self.port))
         while True:
             if not self.command_q.empty():
@@ -29,7 +32,6 @@ class Client(ITransmitterL3):
                     s.close()
                     print("Connection closed.")
                     break
-            
 
     def run(self):
         self.th = threading.Thread(target = self._start)

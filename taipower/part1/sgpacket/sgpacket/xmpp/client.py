@@ -4,6 +4,7 @@ import xmpp
 import queue
 import threading
 import select
+import time
 from sgpacket.abstract import ITransmitterL3
 
 class Client(ITransmitterL3):
@@ -16,13 +17,12 @@ class Client(ITransmitterL3):
         self.pwd = "test"
         self.command_q = queue.Queue()
         self.th = None
+         
     def _messageCB(self, sess, mess):
         message = xmpp.protocol.Message(node=mess)
         msgFrom = message.getFrom()
         msgTo = message.getTo()
         msgText = message.getBody()
-        #print msgFrom, msgTo, msgText # Debug print
-        #if len(msgText) > 0:
         print(msgFrom, ">>", msgText)
 
     def _iqCB(self, sess, mess):
@@ -41,7 +41,7 @@ class Client(ITransmitterL3):
         pwd = self.pwd
         
         # Connect with the server
-        #jid = xmpp.JID(userName)
+        # jid = xmpp.JID(userName)
         connection = xmpp.Client(self.server_ip)
         print("Connecting...")
         connection.connect(server=(self.server_ip, self.port))
@@ -52,12 +52,15 @@ class Client(ITransmitterL3):
         print("Connected!")
 
         while True:
-            connection.Process(1)
+            connection.Process(0.15)
             if not self.command_q.empty():
                 userTo = self.command_q.get()
                 if userTo == ":close":
                     break
+                # message = self.command_q.get() + ', time: ' + str(time.time())
                 message = self.command_q.get()
+                if message.find('time'):
+                    message = '<time> ' + str(time.time())
                 msg = xmpp.Message(userTo, message)
                 connection.send(msg)
         connection.disconnect()
@@ -75,7 +78,6 @@ class Client(ITransmitterL3):
         self.th.join()
         
     def send_msg(self, to, msg):
-        #print("add msg to queue")
         self.command_q.put(to)
         self.command_q.put(msg)
         
@@ -87,4 +89,3 @@ class Client(ITransmitterL3):
     
     def send_one(self):
         self.send_msg('Edward', 'hmmmmmm')
-        
