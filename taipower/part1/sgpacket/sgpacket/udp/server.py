@@ -18,10 +18,7 @@ class Server(IReceiver):
         self.s.bind((self.host, self.port))
         print('Wait for data...')
         while True:
-            indata, addr = self.s.recvfrom(1024)
-            if indata.decode() == ':close': # connection closed
-                self.stop()
-                break
+            indata, addr = self.s.recvfrom(5120)
             if indata.find('<time>'.encode('utf-8')) >= 0:
                 self.time_log.append(time.time() - float(indata.split()[1]))
             print('Receive data from ' + str(addr) + ': ' + indata.decode())

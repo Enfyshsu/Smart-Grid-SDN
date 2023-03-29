@@ -96,7 +96,7 @@ def send_packets(t, num, pkt_type, addr, port=None):
         sent_success(pkt_type, num, addr, port)
     except:
         t.stop()
-        print('Error occurred.')
+        print('Transmitter stopped.')
 
 def sent_success(pkt_type, num, addr, port=None):
     if port:

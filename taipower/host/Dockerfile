@@ -11,7 +11,7 @@ RUN apk add --no-cache openrc
 RUN apk add py3-pip 
 RUN pip3 install scapy pybind11 swig xmpppy
 
-#install pydnp3
+# install pydnp3
 WORKDIR /
 RUN git clone --recursive http://github.com/Kisensum/pydnp3
 WORKDIR /pydnp3
@@ -19,8 +19,7 @@ RUN python3 setup.py install
 WORKDIR /
 RUN rm -r pydnp3/
 
-#build libiec61850
-# WORKDIR /
+# build libiec61850
 RUN git clone https://github.com/mz-automation/libiec61850.git
 WORKDIR /libiec61850
 RUN cmake -DBUILD_PYTHON_BINDINGS=ON .

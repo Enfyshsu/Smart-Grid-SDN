@@ -15,8 +15,6 @@ class Server(IReceiver):
         self.msgList = {}
         self.conn = None
         self.s = None
-        self.packet_num = None
-        self.time_log = []
     
     def _handler(self, client_conn, client_addr):
         # Ref: https://github.com/alissonmbr/xmpp
@@ -77,7 +75,6 @@ class Server(IReceiver):
         
         while True:
             data = client_conn.recv(self.BUFFER_SIZE)
-            # print(data)
             # Disconnect
             if data == b"</stream:stream>":
                 self.onlineList.remove(iqUser)
@@ -95,8 +92,6 @@ class Server(IReceiver):
                 msgP = xmpp.protocol.Message(node=data)
                 msgTo = msgP.getTo()
                 msgText = msgP.getBody()
-                if msgText.find('<time>') >= 0:
-                    self.time_log.append(time.time() - float(msgText.split()[1]))
                 if str(msgTo) in self.onlineList:
                     if len(self.msgList[str(msgTo)]) > 0: 
                         self.msgList[msgTo].insert(0,msgP)
@@ -125,17 +120,9 @@ class Server(IReceiver):
         
     def stop(self):
         self.s.close()
-        if len(self.time_log) == self.packet_num:
-            self.delay_analysis(self.time_log)
             
     def set_ip(self, ip):
         self.host = ip
         
     def set_port(self, port):
         self.port = port
-
-    def delay_analysis(self, data):
-        mean = statistics.mean(data)
-        stdev = statistics.stdev(data)
-        print("Mean: %.6f" %mean) 
-        print("Standard Deviation: %.6f" % stdev)

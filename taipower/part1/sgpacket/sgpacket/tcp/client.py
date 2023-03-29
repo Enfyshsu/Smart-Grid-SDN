@@ -10,16 +10,16 @@ class TCP_CMD(enum.Enum):
    stop = 1
    
 class Client(ITransmitterL3):
-    def __init__(self, server_ip = '127.0.0.1', port = 7000):
+    def __init__(self, server_ip = '127.0.0.1', port = 7000, bind_port = None):
         self.server_ip = server_ip
         self.port = port
+        self.bind_port = bind_port
         self.command_q = queue.Queue()
         self.th = None
             
     def _start(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        s.bind(('0.0.0.0', 20000)) # for dnp3
         s.connect((self.server_ip, self.port))
         while True:
             if not self.command_q.empty():
@@ -45,6 +45,9 @@ class Client(ITransmitterL3):
         
     def set_server_port(self, server_port):
         self.port = server_port
+
+    def set_client_bind_port(self, bind_port):
+        self.bind_port = bind_port
     
     def send_msg(self, msg):
         self.command_q.put(TCP_CMD.send)

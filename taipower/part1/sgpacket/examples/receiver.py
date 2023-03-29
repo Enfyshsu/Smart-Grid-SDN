@@ -53,7 +53,7 @@ def open_receiver(r, pkt_type, port=None):
         receiver_closed(pkt_type, port)
     except:
         r.stop()
-        print('Error occurred.')
+        print('Receiver stopped.')
 
 def receiver_closed(pkt_type, port=None):
     print('%s receiver on port %s is closed.' %(pkt_type, port))
