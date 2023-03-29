@@ -1,7 +1,7 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), './sgpacket')))
-from sgpacket import tcp, udp, xmpp
+from sgpacket import tcp, udp
 import time
 import cmd
 
@@ -24,7 +24,7 @@ class SGPacketHelper(cmd.Cmd):
     def do_XMPP(self, arg):
         '''********************\nOpen XMPP receiver\n********************'''
         port = 5222
-        r = xmpp.Server(host = '0.0.0.0', port = port)
+        r = tcp.Server(host = '0.0.0.0', port = port)
         open_receiver(r, 'XMPP', port)
 
     def do_bye(self, arg):
@@ -35,13 +35,13 @@ class SGPacketHelper(cmd.Cmd):
 def open_receiver(r, pkt_type, port):
     try:
         r.run()
-        r.packet_num = 1000
+        r.packet_num = 500
         time.sleep(180)
         r.stop()
         receiver_closed(pkt_type, port)
     except:
         r.stop()
-        print('Error occurred.')
+        print('Receiver stopped.')
 
 def receiver_closed(pkt_type, port):
     print('%s receiver on port %s is closed.' %(pkt_type, port))
