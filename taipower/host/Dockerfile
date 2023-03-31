@@ -5,11 +5,11 @@ RUN ["/bin/bash", "-c", "echo 'nameserver 8.8.8.8' > /etc/resolv.conf"]
 RUN ["/bin/bash", "-c", "touch /root/.bashrc"]
 RUN ["/bin/bash", "-c", "echo 'export LD_LIBRARY_PATH=/usr/local/lib64' > /root/.bashrc"]
 RUN apk update
-RUN apk add --no-cache python3 python3-dev vim openssh git iperf3 build-base wget linux-headers g++ gcc cmake make
+RUN apk add --no-cache python3 python3-dev vim openssh git iperf3 build-base wget linux-headers g++ gcc cmake make iftop
 ADD ./config/sshd_config /etc/ssh/sshd_config
 RUN apk add --no-cache openrc
 RUN apk add py3-pip 
-RUN pip3 install scapy pybind11 swig xmpppy
+RUN pip3 install scapy pybind11 swig xmpppy numpy
 
 # install pydnp3
 WORKDIR /

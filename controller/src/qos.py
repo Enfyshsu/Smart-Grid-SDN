@@ -119,21 +119,7 @@ class SimpleSwitch13(app_manager.RyuApp):
             u = pkt.get_protocol(udp.udp)
             
             # the priority is higher than forwarding the pkt to controller (priority = 2)
-            """
-            # insert flow rule for tcp
-            if t is not None:
-                protocol = in_proto.IPPROTO_TCP
-                match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP, ip_proto=protocol, ipv4_src=src_ip, ipv4_dst=dst_ip)
-                actions = [parser.OFPActionSetQueue(0), parser.OFPActionOutput(out_port)]
-           
-           # insert flow rule for udp
-            elif u is not None:
-                protocol = in_proto.IPPROTO_UDP
-                match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP, ip_proto=protocol, ipv4_src=src_ip, ipv4_dst=dst_ip)
-                actions = [parser.OFPActionSetQueue(1), parser.OFPActionOutput(out_port)]
-
-            self.add_flow(datapath, priority, match, actions)
-            """
+            
             # insert flow rule for xmpp (tcp port 5222)
             if t is not None and t.dst_port == PORT_XMPP:
                 protocol = in_proto.IPPROTO_TCP
@@ -190,20 +176,6 @@ class SimpleSwitch13(app_manager.RyuApp):
         parser = datapath.ofproto_parser
         priority = 2
 
-        """
-        # insert flow rule for tcp
-        protocol = in_proto.IPPROTO_TCP
-        match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP, ip_proto=protocol)
-        actions = [parser.OFPActionSetQueue(0), parser.OFPActionOutput(ofproto.OFPP_CONTROLLER)]
-        self.add_flow(datapath, priority, match, actions)
-
-        # insert flow rule for udp
-        protocol = in_proto.IPPROTO_UDP
-        match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP, ip_proto=protocol)
-        actions = [parser.OFPActionSetQueue(1), parser.OFPActionOutput(ofproto.OFPP_CONTROLLER)]
-        self.add_flow(datapath, priority, match, actions)
-        """
-        
         # insert flow rule for xmpp (tcp port 5222)
         protocol = in_proto.IPPROTO_TCP
         dst_port = PORT_XMPP

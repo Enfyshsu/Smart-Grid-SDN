@@ -33,6 +33,6 @@ class SGContainernet(Containernet):
 
     def addTPHost(self, name, ip, mac):
         # d = self.addDocker(name=name, ip=ip, mac=mac, dimage='sgsdn_taipower', ports=[22, 3000], cap_add=["NET_ADMIN"], sysctls={'net.ipv4.tcp_rmem':20971520, 'net.ipv4.tcp_rmem':20971520}, dcmd='/init',  network_mode='none', dns=['8.8.8.8'], volumes=['/home/sgsdn/workspace/taipower/part1/sgpacket:/sgpacket'])
-        d = self.addDocker(name=name, ip=ip, mac=mac, dimage='sgsdn_taipower', ports=[22, 3000], cap_add=["NET_ADMIN"], dcmd='/init',  network_mode='none', dns=['8.8.8.8'], volumes=['/home/sgsdn/workspace/taipower/part1/sgpacket:/sgpacket'])
+        d = self.addDocker(name=name, ip=ip, mac=mac, dimage='sgsdn_taipower', ports=[22, 3000], cap_add=["NET_ADMIN"], dcmd='/init',  network_mode='none', dns=['8.8.8.8'], volumes=['/home/sgsdn/workspace/taipower/part1/sgpacket:/sgpacket', '/home/sgsdn/workspace/taipower/part2:/latencyTest'])
         d.cmd('./ssh_entrypoint.sh')
         return d

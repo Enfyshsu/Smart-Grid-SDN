@@ -24,25 +24,25 @@ class Server(IReceiver):
         self.conn, addr = self.s.accept()
         print('connected by ' + str(addr))
 
-        pkt = b''
+        # pkt = b''
         while True:
-            indata = self.conn.recv(883)
+            indata = self.conn.recv(1024)
             #print(len(indata))
             #print(indata)
             if len(indata) == 0: # connection closed
                 self.conn.close()
                 break
-            pkt += indata
-            to_parse = b''
-            if len(pkt) >= 883:
-                to_parse = pkt[:883]
-                pkt = pkt[883:]
-                print(to_parse)
-            print(len(to_parse), flush = True)
-            print(len(pkt), flush = True)
-            if to_parse.find('<time>'.encode('utf-8')) >= 0:
-                self.time_log.append(time.time() - float(to_parse.split()[1]))
-            # print('recv: ' + indata.decode())
+            # pkt += indata
+            # to_parse = b''
+            # if len(pkt) >= 883:
+            #     to_parse = pkt[:883]
+            #     pkt = pkt[883:]
+            #     print(to_parse)
+            # print(len(to_parse), flush = True)
+            # print(len(pkt), flush = True)
+            if indata.find('<time>'.encode('utf-8')) >= 0:
+                self.time_log.append(time.time() - float(indata.split()[1]))
+            print('recv: ' + indata.decode())
         print('Client closed connection.')
         if len(self.time_log) == self.packet_num:
             self.delay_analysis(self.time_log)
