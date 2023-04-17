@@ -134,7 +134,7 @@ def measure_link():
                     # print(response)
                         # B to Kb
                     thr[switch][port] = response[0]['metricValue'] * 8 / 1000
-                #print(switch, thr[switch])
+                print(switch, thr[switch])
         except:
             pass
         hub.sleep(0.1)
